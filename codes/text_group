@@ -1,0 +1,57 @@
+import pandas
+import heapq
+from sklearn.svm import SVC
+import numpy as np
+from sklearn import datasets
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import KFold
+from sklearn.model_selection import GridSearchCV
+
+newsgroups = datasets.fetch_20newsgroups(
+                    subset='all',
+                    categories=['alt.atheism', 'sci.space']
+             )
+
+'''
+ddata = pandas.read_csv('newsgroups.data', index_col=False, header=None)
+dtarget = pandas.read_csv('newsgroups.data', header=None)
+'''
+
+x = newsgroups.data
+Y = newsgroups.target
+
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(x)
+
+grid = {'C': np.power(10.0, np.arange(-5, 6))}
+cv = KFold(n_splits=5, shuffle=True, random_state=241)
+clf = SVC(kernel='linear', random_state=241)
+gs = GridSearchCV(clf, grid, scoring='accuracy', cv=cv)
+gs.fit(X, Y)
+
+best_c = gs.best_estimator_.C
+print(best_c)
+
+cv2 = KFold(n_splits=5, shuffle=True, random_state=241)
+clf2 = SVC(kernel='linear', random_state=241, C = best_c)
+#gs2 = GridSearchCV(clf2, scoring='accuracy', cv=cv)
+clf2.fit(X, Y)
+'''
+coefs = abs(clf2.coef_.todense().A1)
+coefs1 = np.argsort(coefs)
+print(type(coefs1))
+print(coefs1.sort())
+
+rts = (7801, 21437, 9144, 9146, 21434, 21433, 21432, 9150, 21431, 21430)
+for rt in rts:
+    print('\n', vectorizer.get_feature_names()[rt])
+'''
+coef = np.abs(clf2.coef_.data)
+top10 = heapq.nlargest(10,range(len(coef)),coef.take)
+top10_fullpath = clf2.coef_.indices[top10]
+
+print(top10_fullpath)
+
+rts = (24019, 12871, 5088, 5093, 17802, 23673, 21850, 5776, 15606, 22936)
+for rt in rts:
+    print('\n', vectorizer.get_feature_names()[rt])

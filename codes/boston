@@ -1,0 +1,22 @@
+import pandas
+import numpy as np
+from sklearn import datasets
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn import preprocessing
+from sklearn.model_selection import KFold
+from sklearn import datasets, linear_model
+from sklearn.model_selection import cross_val_score
+
+dt = datasets.load_boston()
+
+#print(dt['target'])
+
+x = preprocessing.scale(dt['data'])
+y = dt['target']
+
+n = np.linspace(1, 10, num=200)
+for i in n:
+    metrics = KNeighborsRegressor(n_neighbors=5, weights='distance', p = i, metric='minkowski')
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    quality = cross_val_score(metrics, x, y, cv=kf, scoring='neg_mean_squared_error')
+    print(i, np.mean(quality),'\n')

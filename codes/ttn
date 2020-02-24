@@ -1,0 +1,44 @@
+import types
+import pandas
+import re
+import numpy as np
+from scipy.stats import pearsonr, spearmanr
+data = pandas.read_csv('titanic.csv', index_col='PassengerId')
+txtdata = str(data[:892])
+gender = txtdata.find('female')
+
+
+print(data['Age'].value_counts())
+average = np.median(data, axis = 0)
+print(average)
+newdata=data['Age'].dropna()
+print(newdata)
+average = np.median(newdata, axis = 0)
+print(average)
+
+corr = pearsonr(data['SibSp'],data['Parch'])
+
+newdata = data['Name'].where(data['Sex'] == 'female')
+print(newdata)
+
+
+for item in newdata:
+    if type(item) == types.StringType:
+        p = re.compile('(\w, Miss. )')
+        newdata1 = p.sub(' ', item)
+        print(item)
+
+name_plus_sex = data['Name'] + ';' + data['Sex']
+list = []
+for name in name_plus_sex:
+    if name.split(';')[1] == 'female':
+        if '(' in name.split(';')[0]:
+            splitted = name.split(';')[0].split('(')[-1].split(' ')[0]
+            list.append(splitted)
+        else:
+            splitted_miss = name.split(';')[0].replace('Miss.','').split(',')[1]
+            list.append(splitted_miss)
+
+for item in list:
+    stroka = item + ' '
+    f.write(stroka)

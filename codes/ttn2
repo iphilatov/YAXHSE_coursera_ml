@@ -1,0 +1,16 @@
+'''ТОЛЬКО ДЛЯ PYTHON 2.X'''
+
+import pandas
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
+
+dt = pandas.read_csv('titanic.csv', index_col='PassengerId')
+dt['Sex'] = np.where(dt['Sex'] == 'male', 1, 0)
+data = dt[['Pclass','Fare','Age','Sex','Survived']]
+
+newdata = data.dropna()
+clf = DecisionTreeClassifier(random_state=241)
+clf.fit(newdata[['Pclass','Fare','Age','Sex']], newdata['Survived'])
+
+for a,b in zip(newdata[['Pclass','Fare','Age','Sex']].columns, clf.feature_importances_):
+    print a,b

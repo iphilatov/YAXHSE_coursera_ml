@@ -1,0 +1,46 @@
+import pandas
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import KFold
+from sklearn import datasets, linear_model
+from sklearn.model_selection import cross_val_score
+from sklearn import preprocessing
+dt = pandas.read_csv('wine.data', index_col=False, header=None)
+
+
+dt.set_axis(
+    axis=1,
+    labels=['type',
+            'alcohol',
+            'malic_acid',
+            'ash',
+            'alcalinity_of_ash',
+            'magnesium',
+            'total_phenols',
+            'flavanoids',
+            'nonflavanoid_phenols',
+            'proanthocyanins',
+            'color_intensity',
+            'hue',
+            'of_diluted_wines',
+            'proline'],
+            inplace=True)
+
+#print(dt['hue'])
+X = dt[['alcohol','malic_acid','ash','alcalinity_of_ash','magnesium','total_phenols','flavanoids','nonflavanoid_phenols','proanthocyanins','color_intensity','hue','of_diluted_wines','proline']]
+Y = dt['type']
+newX = preprocessing.scale(X)
+
+metrics = KNeighborsClassifier(n_neighbors=5)
+#metrics.fit(X,Y)
+
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+quality = cross_val_score(metrics, X, Y, cv=kf, scoring='accuracy')
+print(np.mean(quality))
+
+#k = int()
+for k in range(1, 51):
+    metrics = KNeighborsClassifier(n_neighbors=k)
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    quality = cross_val_score(metrics, newX, Y, cv=kf, scoring='accuracy')
+    print(k, np.mean(quality),'\n')

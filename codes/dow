@@ -1,0 +1,38 @@
+import pandas
+import numpy as np
+from sklearn.decomposition import PCA
+
+
+dt = pandas.read_csv('close_prices.csv') #[374 rows x 31 columns]
+dt = dt.iloc[:,1:]
+
+dj = pandas.read_csv('djia_index.csv')
+dj = dj.iloc[:,1:]
+
+
+X = np.array(dt)
+pca = PCA(n_components=10)
+pca.fit(X)
+
+count = 0
+sum = 0
+for i in range(len(pca.explained_variance_ratio_)):
+    count+=1
+    value = pca.explained_variance_ratio_[i]
+    sum+= value
+    if sum > 0.9:
+        break
+print("Need components %d" % count)
+
+trans = pandas.DataFrame(pca.transform(X)[:,0])
+
+coef = np.corrcoef(trans.transpose(), dj.transpose())[1,0]
+print(coef)
+
+indx = -1
+value = -1
+for i in range(len(pca.components_[0])):
+    if value < pca.components_[0][i]:
+        value = pca.components_[0][i]
+        indx = i
+print("Company name: '%s' weight: %0.2f" % (dt.columns[indx], value))

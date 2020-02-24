@@ -1,0 +1,35 @@
+import pandas
+import numpy as np
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import hstack
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.linear_model import Ridge
+
+dt = pandas.read_csv('salary-train.csv', nrows=10000)
+df = pandas.read_csv('salary-test-mini.csv')
+
+#print(df[:10])
+dt['FullDescription'] = dt['FullDescription'].str.lower().replace('[^a-zA-Z0-9]', ' ', regex = True)
+dt['LocationNormalized'] = dt['LocationNormalized'].fillna('nan')
+dt['ContractTime'] = dt['ContractTime'].fillna('nan')
+
+X_train = dt[['FullDescription', 'LocationNormalized', 'ContractTime']]
+y_train = dt['SalaryNormalized']
+
+vectorizer = TfidfVectorizer(min_df=5)
+X_train_vec = vectorizer.fit_transform(X_train['FullDescription']) #NB!
+X_test_vec = vectorizer.transform(df['FullDescription'])
+
+enc = DictVectorizer()
+X_train_categ = enc.fit_transform(X_train[['LocationNormalized', 'ContractTime']].to_dict('records'))
+X_test_categ = enc.transform(df[['LocationNormalized', 'ContractTime']].to_dict('records'))
+
+X_for_train = hstack([X_train_vec, X_train_categ])
+X_for_test = hstack([X_test_vec, X_test_categ])
+
+clf = Ridge(alpha=1.0, random_state=241)
+clf.fit(X_for_train, y_train)
+
+prediction = clf.predict(X_for_test)
+print(prediction)

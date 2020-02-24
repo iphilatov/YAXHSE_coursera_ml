@@ -1,0 +1,51 @@
+import pandas
+import numpy as np
+from sklearn.linear_model import Perceptron
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+
+dtrain = pandas.read_csv('perceptron-train.csv', header=None) #[299 rows x 3 columns]
+dtest = pandas.read_csv('perceptron-test.csv', header=None) #[199 rows x 3 columns]
+
+
+dtrain.set_axis(
+    axis=1,
+    labels=['first',
+            'second',
+            'third'],
+            inplace=True)
+
+dtest.set_axis(
+    axis=1,
+    labels=['first',
+            'second',
+            'third'],
+            inplace=True)
+
+trainX = dtrain[['second','third']]
+trainY = dtrain['first']
+
+testX = dtest[['second','third']]
+testY = dtest['first']
+
+clf1 = Perceptron(random_state=241, max_iter=5, tol=None)
+clf1.fit(trainX, trainY)
+predictions1 = clf1.predict(testX)
+
+accuracy1 = accuracy_score(testY, predictions1)
+
+print(accuracy1)
+
+scaler = StandardScaler()
+Xtrainscaled = scaler.fit_transform(trainX)
+Xtestscaled = scaler.transform(testX)
+
+clf2 = Perceptron(random_state=241, max_iter=5, tol=None)
+clf2.fit(Xtrainscaled, trainY)
+predictions2 = clf2.predict(Xtestscaled)
+
+accuracy2 = accuracy_score(testY, predictions2)
+
+answer = accuracy2 - accuracy1
+
+print(answer)

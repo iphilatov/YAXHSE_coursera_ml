@@ -1,0 +1,22 @@
+import pandas
+import numpy as np
+from sklearn.svm import SVC
+
+dt = pandas.read_csv('svm-data.csv', header=None) #[9 rows x 3 columns]
+
+dt.set_axis(
+    axis=1,
+    labels=['first',
+            'second',
+            'third'],
+            inplace=True)
+
+
+X = dt[['second','third']]
+Y = dt['first']
+
+clf = SVC(C=100000, kernel='linear', random_state=241)
+clf.fit(X, Y)
+
+answer = clf.support_
+print(answer + 1)

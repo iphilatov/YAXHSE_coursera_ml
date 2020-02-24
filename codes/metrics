@@ -1,0 +1,56 @@
+import pandas
+import numpy as np
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import precision_recall_curve
+
+dt = pandas.read_csv('classification.csv', header=0) #[200 rows x 2 columns]
+
+#print(dt[:1000])
+
+print(accuracy_score(dt['true'], dt['pred']))
+print(precision_score(dt['true'], dt['pred']))
+print(recall_score(dt['true'], dt['pred']))
+print(f1_score(dt['true'], dt['pred']))
+
+
+ds = pandas.read_csv('scores.csv', header=0) #[200 rows x 5 columns]
+
+roc_logreg = roc_auc_score(ds['true'],ds['score_logreg'])
+roc_svm = roc_auc_score(ds['true'],ds['score_svm'])
+roc_knn = roc_auc_score(ds['true'],ds['score_knn'])
+roc_tree = roc_auc_score(ds['true'],ds['score_tree'])
+
+print (roc_logreg, roc_svm, roc_knn, roc_tree)
+
+
+curve_logreg = precision_recall_curve(ds['true'],ds['score_logreg'])
+
+curve_svm = precision_recall_curve(ds['true'],ds['score_svm'])
+
+curve_knn = precision_recall_curve(ds['true'],ds['score_knn'])
+
+curve_tree = precision_recall_curve(ds['true'],ds['score_tree'])
+
+dict_precision = {key1:i for key1, i in enumerate(curve_tree[0])}
+dict_recall = {key2:l for key2, l in enumerate(curve_tree[1])}
+
+
+index_list = []
+results_list = []
+
+for key, value in dict_recall.items():
+    if value >= 0.7:
+        index_list.append(key)
+
+
+for key_, value_ in dict_precision.items():
+    if key_ in index_list:
+        results_list.append(value_)
+
+answer = max(results_list))
+print(answer)
